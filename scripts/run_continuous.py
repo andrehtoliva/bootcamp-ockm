@@ -1,9 +1,4 @@
-"""Continuous demo runner — generates random events, runs pipeline, repeats.
-
-Designed for live presentations: each cycle generates fresh random events,
-processes them through the full pipeline, and shows results with a visual
-countdown between cycles. EWMA state accumulates across cycles so anomalies
-become meaningful over time.
+"""Continuous demo runner.
 
 Usage:
     python -m scripts.run_continuous --interval 60 --count 10
@@ -14,6 +9,7 @@ Usage:
 from __future__ import annotations
 
 import asyncio
+import json
 import signal
 import sys
 import time
@@ -25,6 +21,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+from rich.syntax import Syntax
 from rich.table import Table
 
 from config.settings import get_settings
@@ -55,8 +52,8 @@ class AccumulatedStats:
 # ── Display helpers ──────────────────────────────────────────────────────
 
 _SEVERITY_COLORS = {
-    "critical": "bold white on red",
-    "high": "bold red",
+    "critical": "bold white on dark_red",
+    "high": "bold bright_red",
     "medium": "bold yellow",
     "low": "bold green",
 }
@@ -247,6 +244,19 @@ async def setup_components(dry: bool, no_bq: bool):
         console.print(f"[green]BigQuery habilitado:[/green] {settings.bq_enriched_table_id}")
     else:
         console.print("[dim]BigQuery desabilitado[/dim]")
+
+    from schemas.llm_responses import ClassificationResult
+
+    schema_json = json.dumps(ClassificationResult.model_json_schema(), indent=2, ensure_ascii=False)
+    console.print(
+        Panel(
+            Syntax(schema_json, "json", theme="monokai", line_numbers=False),
+            title="Schema: ClassificationResult (enviado ao LLM via Instructor)",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+    console.print()
 
     return settings, llm, rag_engine, sinks, terminal_sink, bq_store
 

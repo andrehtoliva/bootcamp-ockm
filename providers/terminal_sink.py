@@ -1,5 +1,3 @@
-"""Rich terminal alert sink for live demo output."""
-
 from __future__ import annotations
 
 from rich.console import Console
@@ -9,10 +7,18 @@ from rich.table import Table
 from schemas.alerts import Alert
 
 _SEVERITY_COLORS = {
-    "critical": "bold white on red",
-    "high": "bold red",
+    "critical": "bold white on dark_red",
+    "high": "bold bright_red",
     "medium": "bold yellow",
     "low": "bold green",
+}
+
+# Border/accent colors — softer tones so text inside remains readable
+_BORDER_COLORS = {
+    "critical": "red",
+    "high": "bright_red",
+    "medium": "yellow",
+    "low": "green",
 }
 
 
@@ -23,15 +29,16 @@ class TerminalSink:
         self.console = console or Console()
 
     async def send(self, alert: Alert) -> bool:
-        color = _SEVERITY_COLORS.get(alert.risk_level, "bold white")
+        text_color = _SEVERITY_COLORS.get(alert.risk_level, "bold white")
+        border_color = _BORDER_COLORS.get(alert.risk_level, "white")
 
         # Build recommendations list
         recs = "\n".join(f"  • {r}" for r in alert.recommendations) if alert.recommendations else "  Nenhuma recomendação"
 
         body = (
             f"[bold]Serviço:[/bold] {alert.service}\n"
-            f"[bold]Severidade:[/bold] [{color}]{alert.severity.upper()}[/{color}]\n"
-            f"[bold]Risk Score:[/bold] [{color}]{alert.risk_score}/100 ({alert.risk_level})[/{color}]\n"
+            f"[bold]Severidade:[/bold] [{text_color}]{alert.severity.upper()}[/{text_color}]\n"
+            f"[bold]Risk Score:[/bold] [{text_color}]{alert.risk_score}/100 ({alert.risk_level})[/{text_color}]\n"
             f"\n[bold]Resumo:[/bold]\n  {alert.summary}\n"
             f"\n[bold]Causa Raiz:[/bold]\n  {alert.root_cause}\n"
             f"\n[bold]Recomendações:[/bold]\n{recs}"
@@ -40,7 +47,7 @@ class TerminalSink:
         panel = Panel(
             body,
             title=f"🚨 ALERTA: {alert.title}",
-            border_style=color,
+            border_style=border_color,
             padding=(1, 2),
         )
         self.console.print(panel)

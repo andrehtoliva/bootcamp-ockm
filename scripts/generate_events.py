@@ -1,9 +1,4 @@
-"""Random event generator with realistic templates and correlated scenarios.
-
-Provides ~50 event templates across severities and a scenario system
-that generates correlated multi-event stories (deploy gone wrong,
-memory leak cascade, etc.) for the continuous demo.
-
+"""
 Usage:
     python -m scripts.generate_events --count 10 --preview
 """
@@ -21,7 +16,7 @@ from typing import Literal
 
 _SERVICES = ["checkout", "payments", "inventory", "api-gateway", "frontend", "users", "orders"]
 _NAMESPACES = ["production", "production", "production", "staging"]
-_GATEWAYS = ["stone", "pagseguro", "stripe", "adyen"]
+_GATEWAYS = ["gateway-alpha", "gateway-beta", "gateway-gamma", "gateway-delta"]
 _DEPLOYERS = ["ci-bot", "deploy-bot", "github-actions", "argocd"]
 _IPS = ["203.0.113.42", "198.51.100.17", "10.0.3.45", "172.16.0.12", "192.168.1.100"]
 

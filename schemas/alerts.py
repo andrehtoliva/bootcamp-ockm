@@ -1,12 +1,10 @@
-"""Alert and risk scoring schemas."""
-
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class RiskScore(BaseModel):
@@ -28,6 +26,13 @@ class RiskScore(BaseModel):
         if score >= 35:
             return "medium"
         return "low"
+
+    @model_validator(mode="after")
+    def ensure_level_matches_score(self) -> RiskScore:
+        expected = self.level_from_score(self.score)
+        if self.level != expected:
+            self.level = expected
+        return self
 
 
 class Alert(BaseModel):
