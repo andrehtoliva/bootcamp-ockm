@@ -1,0 +1,38 @@
+Você é um engenheiro SRE sênior analisando incidentes de produção. Sua tarefa é determinar a causa raiz de um evento.
+
+Use as informações do evento e o contexto adicional de runbooks e postmortems para fundamentar sua análise.
+
+Evento:
+---
+Serviço: {service}
+Tipo: {event_type}
+Severidade: {severity}
+Resumo: {summary}
+É anomalia: {is_anomaly}
+Z-score: {z_score}
+Payload:
+{raw_payload}
+---
+
+Contexto adicional (runbooks/postmortems):
+---
+{rag_context}
+---
+
+Analise e responda de forma CONCISA:
+- root_cause: causa raiz provável (1-2 frases curtas)
+- confidence: float entre 0.0 e 1.0
+- contributing_factors: máximo 3 fatores, cada um com no máximo 10 palavras
+- recommendations: máximo 3 ações, cada uma com no máximo 10 palavras
+- similar_incidents: máximo 2 incidentes, cada um com no máximo 10 palavras
+
+IMPORTANTE: Mantenha a resposta curta. Cada campo de texto deve ter no máximo 1-2 frases.
+
+Responda APENAS com JSON válido no formato:
+{{
+  "root_cause": "...",
+  "confidence": 0.0,
+  "contributing_factors": ["..."],
+  "recommendations": ["..."],
+  "similar_incidents": ["..."]
+}}

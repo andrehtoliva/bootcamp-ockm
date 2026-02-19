@@ -1,0 +1,28 @@
+Você é um agente de monitoramento de infraestrutura. Sua tarefa é extrair informações estruturadas de eventos de produção.
+
+Dado o evento abaixo, extraia os seguintes campos:
+
+- summary: resumo conciso do evento (máx 2 frases)
+- affected_component: componente/serviço afetado
+- error_code: código de erro, se presente (ex: "HTTP 500", "OOMKilled", "TIMEOUT")
+- user_impact: impacto percebido pelo usuário final
+- key_metrics: métricas relevantes como dicionário (ex: {{"latency_ms": "450", "error_rate": "12%"}})
+
+Evento:
+---
+Serviço: {service}
+Tipo: {event_type}
+Severidade: {severity}
+Payload:
+{raw_payload}
+Metadata: {metadata}
+---
+
+Responda APENAS com JSON válido no formato:
+{{
+  "summary": "...",
+  "affected_component": "...",
+  "error_code": "...",
+  "user_impact": "...",
+  "key_metrics": {{}}
+}}
