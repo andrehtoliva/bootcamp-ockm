@@ -1,0 +1,9 @@
+job:
+  name: job-template
+  description: "Generic ETL job template"
+  image: gcr.io/YOUR_PROJECT/job_template:latest
+  env:
+    - name: GCP_PROJECT
+      value: YOUR_PROJECT
+    - name: GCS_BUCKET
+      value: YOUR_BUCKET
