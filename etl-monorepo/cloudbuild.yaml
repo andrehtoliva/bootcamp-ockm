@@ -1,0 +1,20 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - build
+      - --build-arg
+      - JOB=$_JOB
+      - -t
+      - gcr.io/$PROJECT_ID/$_JOB:$COMMIT_SHA
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - gcr.io/$PROJECT_ID/$_JOB:$COMMIT_SHA
+
+substitutions:
+  _JOB: job_template
+
+options:
+  logging: CLOUD_LOGGING_ONLY

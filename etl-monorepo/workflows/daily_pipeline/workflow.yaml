@@ -1,0 +1,13 @@
+workflow:
+  name: daily-pipeline
+  description: "Generic daily ETL pipeline"
+  schedule: "0 7 * * *"
+  timezone: "America/Sao_Paulo"
+
+steps:
+  - name: ingest
+    job: job_template
+
+  - name: transform
+    depends_on: ingest
+    job: job_template
