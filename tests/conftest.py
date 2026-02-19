@@ -1,5 +1,3 @@
-"""Shared fixtures for tests — all using dummy/in-memory providers."""
-
 from __future__ import annotations
 
 import pytest
@@ -56,7 +54,7 @@ def sample_events() -> list[RawEvent]:
                 "CRITICAL payments-pod-3a1b2 Gateway timeout after 10000ms "
                 "for transaction txn_9182736. HTTP 504."
             ),
-            metadata={"gateway": "stone"},
+            metadata={"gateway": "gateway-alpha"},
         ),
         RawEvent(
             source="cloud_logging",

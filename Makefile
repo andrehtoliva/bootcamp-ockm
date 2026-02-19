@@ -25,7 +25,7 @@ demo-continuous-fast: seed-rag
 	python -m scripts.run_continuous --interval 60
 
 demo-incident: seed-rag
-	python -m scripts.run_continuous --interval 300 --incident
+	python -m scripts.run_continuous --interval 60 --incident
 
 reset-anomaly:
 	rm -f .anomaly_state.json

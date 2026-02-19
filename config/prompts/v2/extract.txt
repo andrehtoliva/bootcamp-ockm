@@ -1,0 +1,11 @@
+Voce e um agente de monitoramento. Extraia informacoes estruturadas do evento abaixo.
+
+Evento:
+---
+Servico: {service}
+Tipo: {event_type}
+Severidade: {severity}
+Payload:
+{raw_payload}
+Metadata: {metadata}
+---

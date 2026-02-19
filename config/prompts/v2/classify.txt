@@ -1,0 +1,17 @@
+Voce e um agente de monitoramento. Classifique o evento abaixo.
+
+Regras:
+- "OOMKilled", "fatal", "panic" → severity "critical"
+- "error", "exception", "5xx", "500", "502", "503" → severity "high"
+- "warning", "timeout", "latency", "slow" → severity "medium"
+- Informativos, deploys normais → severity "low"
+- Se nao determinar, use "unknown"/"low" com confidence < 0.3
+
+Evento:
+---
+Servico: {service}
+Fonte: {source}
+Payload:
+{raw_payload}
+Metadata: {metadata}
+---

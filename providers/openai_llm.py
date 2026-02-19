@@ -1,11 +1,9 @@
-"""OpenAI fallback LLM provider."""
-
 from __future__ import annotations
 
-import json
 import time
 from typing import Type, TypeVar
 
+import instructor
 from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -16,7 +14,7 @@ T = TypeVar("T")
 
 
 class OpenAILLM:
-    """OpenAI GPT as fallback provider. Implements LLMProvider protocol."""
+    """OpenAI GPT as fallback provider via Instructor. Implements LLMProvider protocol."""
 
     provider_name: str = "openai"
 
@@ -26,7 +24,8 @@ class OpenAILLM:
         model: str = "gpt-4o-mini",
     ) -> None:
         self.model_id = model
-        self._client = AsyncOpenAI(api_key=api_key)
+        self._raw_client = AsyncOpenAI(api_key=api_key)
+        self._client = instructor.from_openai(self._raw_client)
 
     @retry(
         stop=stop_after_attempt(2),
@@ -43,33 +42,19 @@ class OpenAILLM:
     ) -> T:
         start = time.perf_counter()
 
-        response = await self._client.chat.completions.create(
+        parsed, completion = await self._client.chat.completions.create_with_completion(
             model=self.model_id,
             temperature=temperature,
             max_tokens=max_tokens,
-            response_format={"type": "json_object"},
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Responda APENAS com JSON válido. Sem texto adicional.",
-                },
-                {"role": "user", "content": prompt},
-            ],
+            messages=[{"role": "user", "content": prompt}],
+            response_model=response_model,
+            max_retries=2,
         )
 
         latency_ms = (time.perf_counter() - start) * 1000
-        raw_text = response.choices[0].message.content or "{}"
 
-        # Extract JSON from response (handle markdown code blocks)
-        json_text = raw_text.strip()
-        if json_text.startswith("```"):
-            lines = json_text.split("\n")
-            json_text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-
-        parsed = response_model.model_validate_json(json_text)
-
-        input_tokens = response.usage.prompt_tokens if response.usage else 0
-        output_tokens = response.usage.completion_tokens if response.usage else 0
+        input_tokens = completion.usage.prompt_tokens if completion.usage else 0
+        output_tokens = completion.usage.completion_tokens if completion.usage else 0
 
         log.info(
             "openai.generate.success",

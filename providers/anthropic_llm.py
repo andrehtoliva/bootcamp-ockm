@@ -1,12 +1,10 @@
-"""Claude API provider with structured outputs, retry, and observability."""
-
 from __future__ import annotations
 
-import json
 import time
 from typing import Type, TypeVar
 
 import anthropic
+import instructor
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from observability.logger import get_logger
@@ -16,7 +14,7 @@ T = TypeVar("T")
 
 
 class AnthropicLLM:
-    """Claude LLM provider via Anthropic SDK. Implements LLMProvider protocol."""
+    """Claude LLM provider via Anthropic SDK + Instructor. Implements LLMProvider protocol."""
 
     provider_name: str = "anthropic"
 
@@ -26,7 +24,8 @@ class AnthropicLLM:
         model: str = "claude-sonnet-4-20250514",
     ) -> None:
         self.model_id = model
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        self._raw_client = anthropic.AsyncAnthropic(api_key=api_key)
+        self._client = instructor.from_anthropic(self._raw_client)
 
     @retry(
         stop=stop_after_attempt(2),
@@ -43,37 +42,29 @@ class AnthropicLLM:
     ) -> T:
         start = time.perf_counter()
 
-        message = await self._client.messages.create(
+        parsed, completion = await self._client.messages.create_with_completion(
             model=self.model_id,
             max_tokens=max_tokens,
             temperature=temperature,
             messages=[{"role": "user", "content": prompt}],
+            response_model=response_model,
+            max_retries=2,
         )
 
         latency_ms = (time.perf_counter() - start) * 1000
-        raw_text = message.content[0].text
-
-        # Extract JSON from response (handle markdown code blocks)
-        json_text = raw_text.strip()
-        if json_text.startswith("```"):
-            lines = json_text.split("\n")
-            # Remove first and last lines (```json and ```)
-            json_text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-
-        parsed = response_model.model_validate_json(json_text)
 
         log.info(
             "anthropic.generate.success",
             model=self.model_id,
-            input_tokens=message.usage.input_tokens,
-            output_tokens=message.usage.output_tokens,
+            input_tokens=completion.usage.input_tokens,
+            output_tokens=completion.usage.output_tokens,
             latency_ms=round(latency_ms, 2),
         )
 
         # Attach usage metadata for metrics collection
         parsed._anthropic_usage = {  # type: ignore[attr-defined]
-            "input_tokens": message.usage.input_tokens,
-            "output_tokens": message.usage.output_tokens,
+            "input_tokens": completion.usage.input_tokens,
+            "output_tokens": completion.usage.output_tokens,
             "latency_ms": round(latency_ms, 2),
         }
 

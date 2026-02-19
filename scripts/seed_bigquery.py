@@ -1,5 +1,3 @@
-"""Seed BigQuery with realistic synthetic events for demo."""
-
 from __future__ import annotations
 
 import json
@@ -31,7 +29,7 @@ SYNTHETIC_EVENTS = [
             "Payment gateway returned HTTP 504. Customer charged but confirmation pending. "
             "Retry attempt 3/3 failed."
         ),
-        "metadata": {"pod": "payments-pod-3a1b2", "gateway": "stone", "amount_brl": "459.90"},
+        "metadata": {"pod": "payments-pod-3a1b2", "gateway": "gateway-alpha", "amount_brl": "459.90"},
     },
     {
         "source": "cloud_logging",

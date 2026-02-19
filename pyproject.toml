@@ -19,6 +19,7 @@ dependencies = [
     "numpy>=1.26",
     "structlog>=24.0",
     "rich>=13.0",
+    "instructor>=1.7",
     "tenacity>=8.2",
     "click>=8.1",
     "slack-sdk>=3.27",
