@@ -1,6 +1,0 @@
-{
-  "hooks": {
-    "pre-edit": "tfsec . --soft-fail",
-    "post-edit": "terraform-docs markdown table . > README.md && terraform fmt"
-  }
-}
