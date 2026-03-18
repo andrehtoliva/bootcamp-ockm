@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE_PATH=$(cat | jq -r '.tool_input.file_path // empty'); if [[ \"$FILE_PATH\" == *.tf ]]; then cd \"$(dirname \"$FILE_PATH\")\" && tfsec . --soft-fail 2>&1; fi",
+            "command": "python3 /Users/luisfelipegomesmolina/Documents/Github/bootcamp-ockm/scripts/tfsec_pre_hook.py",
             "timeout": 30
           }
         ]
@@ -18,8 +18,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE_PATH=$(cat | jq -r '.tool_input.file_path // empty'); if [[ \"$FILE_PATH\" == *.tf ]]; then terraform fmt \"$FILE_PATH\" 2>&1; fi",
-            "timeout": 15
+            "command": "python3 /Users/luisfelipegomesmolina/Documents/Github/bootcamp-ockm/scripts/changelog_post_hook.py",
+            "timeout": 10
           }
         ]
       }
