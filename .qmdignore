@@ -1,0 +1,7 @@
+venv/
+.venv/
+node_modules/
+.git/
+target/
+build/
+dist/
